@@ -34,7 +34,7 @@ public class Main {
         int nextStep;
         do
         {
-            System.out.println("Hova szeretne lépni?");
+            System.out.println("Hova szeretne lépni?(számként adja meg kérem)");
             nextStep = Integer.parseInt((sc.nextLine()));
         } while(gameField.Step(nextStep) != 0);
     }
