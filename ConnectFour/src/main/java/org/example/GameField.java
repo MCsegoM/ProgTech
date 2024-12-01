@@ -1,12 +1,10 @@
 package org.example;
-
-import java.io.BufferedReader;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.FileReader;
 
 public class GameField {
     //változók deklarálása
-    int board[][] = new int[7][6];
+    int[][] board = new int[7][6];
 
     //tábla generálása
     public GameField() {
@@ -22,23 +20,23 @@ public class GameField {
 
     //Tábla importálása
     public GameField(String nev){
-        nev.concat(".txt");
-        try{
-            File file = new File(nev);
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String st;
-            int counter = 6;
-            while ((st = br.readLine()) != null)
-            {
-                for(int i = 0; i < 7; i ++)
-                {
-                    board[i][counter] = st.charAt(i);
-                }
-                counter--;
-            }
-        } catch (Exception e)
-        {
-
+        try {
+            nev.concat(".json");
+            ObjectMapper objectMapper = new ObjectMapper();
+            GameField field = objectMapper.readValue(new File(nev), GameField.class);
+            this.board = field.board;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Visual();
+    }
+    public void Save()
+    {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(new File("GameSave.json"), GameField.class);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         Visual();
     }
@@ -56,7 +54,7 @@ public class GameField {
             System.out.println("Az oszlop megtelt, kérem válasszon egy másikat!");
         } else{
             board[column][i] = 1;
-            if(IsEnd(column, i, true))
+            if(IsEnd(column, i, true) != 0)
             {
                 return 0;
             }
@@ -64,7 +62,7 @@ public class GameField {
                 return StepAI();
             }
         }
-        return 3;
+        return 1;
     }
 
     //AI lépései
@@ -83,16 +81,16 @@ public class GameField {
             board[genNumber][i] = 2;
         }
         Visual();
-        if(IsEnd(genNumber, i, false))
+        if(IsEnd(genNumber, i, false) != 0)
         {
-            return 0;
+            return 2;
         } else{
-            return 1;
+            return 0;
         }
     }
 
     //Vége-e a játéknak
-    public boolean IsEnd(int column, int row, boolean isPlayer)
+    public int IsEnd(int column, int row, boolean isPlayer)
     {
         //változók létrehozása
         int counter = 0;
@@ -116,7 +114,7 @@ public class GameField {
         }
         if(eCounter >= 4)
         {
-            return true;
+            return preferedChacacter;
         }
         counter= 0;
         eCounter = 0;
@@ -134,7 +132,7 @@ public class GameField {
         }
         if(eCounter >= 4)
         {
-            return true;
+            return preferedChacacter;
         }
         counter= 0;
         eCounter = 0;
@@ -152,7 +150,7 @@ public class GameField {
         }
         if(eCounter >= 4)
         {
-            return true;
+            return preferedChacacter;
         }
         counter= 0;
         eCounter = 0;
@@ -170,9 +168,9 @@ public class GameField {
         }
         if(eCounter >= 4)
         {
-            return true;
+            return preferedChacacter;
         }
-        return false;
+        return 0;
     }
 
     //Pálya állásának kiíratása
